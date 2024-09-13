@@ -1,40 +1,56 @@
-import { View, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, Image, TouchableWithoutFeedback, Dimensions } from 'react-native'
 import React from 'react'
 import { styles } from '../Theme/Index'
 import { useNavigation } from '@react-navigation/native'
 
+var { width, height } = Dimensions.get('window')
 
-export default function MovieList({ title, data }) {
+export default function MovieList({ title, data, hideSeeAll }) {
 
-    let movieName = 'Deadpool'
+    let movieName = 'Deadpool and Wolverine'
     const navigation = useNavigation();
 
     return (
         <View className={'mb-8 space-y-4'}>
             <View className={'mx-4 flex-row justify-between items-center'}>
                 <Text className={'text-white text-xl'}>{title}</Text>
-                <TouchableOpacity>
-                    <Text style={styles.text}>See All</Text>
-                </TouchableOpacity>
+                {
+                    !hideSeeAll && (
+                        <TouchableOpacity>
+                            <Text style={styles.text}>See All</Text>
+                        </TouchableOpacity>
+                    )
+                }
             </View>
-            <ScrollView 
+            <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: 15 }}
-                >
-                    {
-                        data.map((item, index)=> {
-                            return(
-                                <TouchableWithoutFeedback
-                                    key={index}
-                                    onPress={() => navigation.navigate('Movie', item)}
-                                >
-                                    <Text className={'text-white ml-3'}>{movieName}</Text>
-                                </TouchableWithoutFeedback>
-                            )
-                        }) 
-                    }
-                </ScrollView>
+            >
+                {
+                    data.map((item, index) => {
+                        return (
+                            <TouchableWithoutFeedback
+                                key={index}
+                                onPress={() => navigation.push('Movie', item)}
+                            >
+                                <View className={'space-y-1 mr-4'}>
+                                    <Image
+                                        source={require('../assets/Deadpool.jpeg')}
+                                        style={{ width: width * 0.33, height: height * 0.22 }}
+                                        className={'rounded-2xl'}
+                                    />
+                                    <Text className={'text-neutral-300 ml-1'}>
+                                        {
+                                            movieName.length > 14 ? movieName.slice(0, 14) + '...' : movieName
+                                        }
+                                    </Text>
+                                </View>
+                            </TouchableWithoutFeedback>
+                        )
+                    })
+                }
+            </ScrollView>
         </View>
     )
 }
