@@ -7,6 +7,8 @@ import { styles, theme } from '../Theme/Index'
 import { LinearGradient } from 'expo-linear-gradient'
 import Cast from '../Components/Cast'
 import MovieList from '../Components/MovieList'
+import Loading from '../Components/Loading'
+import { fetchMoviesCredits, fetchMoviesDetails, fetchSimilarMoviesDetails, image500 } from '../API/movieDB'
 
 var { width, height } = Dimensions.get('window')
 
@@ -14,15 +16,43 @@ export default function MoviesScreen() {
 
     let movieName = 'Justice League'
 
-    const { param } = useRoute()
-    const navigation = useNavigation()
-    const [isFavorite, toggleFavorite] = useState(false)
-    const [ cast, setCast ] = useState([1,2,3,4,5,6])
-    const [ similarMovies, setSimilarMovies ] = useState([1,2,3,4])
+    const route = useRoute();
+    const navigation = useNavigation();
+    const [isFavorite, toggleFavorite] = useState(false);
+    const [cast, setCast] = useState([]);
+    const [similarMovies, setSimilarMovies] = useState([]);
+    const [movies, setMovies] = useState({});
+    const [loading, setLoading] = useState(true);
+    
+    // Fetch the movie ID from route params
+    const movieId = route.params?.id || 'defaultId'; // replace 'defaultId' with an appropriate fallback
 
     useEffect(() => {
+        if (movieId) {
+            setLoading(true);
+            getMoviesDetails(movieId);
+            getMoviesCredits(movieId);
+            getSimilarMovies(movieId);
+        }
+    }, [movieId]);
 
-    }, []) // if remove the item to check the Output
+    const getMoviesDetails = async (id) => {
+            const data = await fetchMoviesDetails(id);
+            // console.log('Got Movies:', data);
+            if (data) setMovies(data);
+            setLoading(false)
+    };
+    const getMoviesCredits = async (id) => {
+        const data = await fetchMoviesCredits(id);
+        // console.log('Movie Credits : ', data)
+        if (data && data.cast) setCast(data.cast);
+    }
+    const getSimilarMovies = async (id) => {
+        const data = await fetchSimilarMoviesDetails(id);
+        // console.log('Movie Credits : ', data)
+        if (data && data.results) setSimilarMovies(data.results);
+    }
+
     return (
         <ScrollView
             contentContainerStyle={{ paddingBottom: 20 }}
@@ -37,39 +67,53 @@ export default function MoviesScreen() {
                         <HeartIcon size={30} color={isFavorite ? theme.background : 'white'} />
                     </TouchableOpacity>
                 </SafeAreaView>
-                <View>
-                    <Image
-                        source={require('../assets/DC.jpg')} style={{ width, height: height * 0.7 }} />
-                    <LinearGradient
-                        colors={['transparent', 'rgba(23,23,23,0.8)', 'rgba(23,23,23,1)']}
-                        style={{ width, height: height * 0.40 }}
-                        start={{ x: 0.5, y: 0 }}
-                        end={{ x: 0.5, y: 1 }}
-                        className={'absolute bottom-0'}
-                    />
-                </View>
+                {
+                    loading ? (
+                        <Loading />
+                    ) : (
+                        <View>
+                            <Image
+                                // source={require('../assets/DC.jpg')}
+                                source={{uri: image500(movies?.poster_path)}} 
+                                style={{ width, height: height * 0.7 }} />
+                            <LinearGradient
+                                colors={['transparent', 'rgba(23,23,23,0.8)', 'rgba(23,23,23,1)']}
+                                style={{ width, height: height * 0.40 }}
+                                start={{ x: 0.5, y: 0 }}
+                                end={{ x: 0.5, y: 1 }}
+                                className={'absolute bottom-0'}
+                            />
+                        </View>
+                    )
+                }
+
             </View>
             <View style={{ marginTop: -(height * 0.20) }}>
-                <Text className={'text-white text-2xl text-center font-bold tracking-wider'}>{movieName}</Text>
-                <Text className={'text-neutral-400 text-lg text-center font-semibold'}>Released • 2017 • 120 min</Text>
+                <Text className={'text-white text-2xl text-center font-bold tracking-wider'}>{movies?.title}</Text>
+{ movies?.id?(                <Text className={'text-neutral-400 text-lg text-center font-semibold'}>{movies?.status} • {movies?.release_date?.split('-')[0]} • {movies?.runtime} min</Text>
+): null}
                 <View className={'flex-row justify-center mx-4 space-x-2'}>
-                    <Text className={'text-neutral-400 text-base text-center font-semibold'}>Action •</Text>
-                    <Text className={'text-neutral-400 text-base text-center font-semibold'}>Adventure •</Text>
-                    <Text className={'text-neutral-400 text-base text-center font-semibold'}>Sci-Fi •</Text>
-                    <Text className={'text-neutral-400 text-base text-center font-semibold'}>Fantasy</Text>
+                    {
+                        movies?.genres?.map((genre, index)=>{
+                            let showDot = index+1 != movies.genres.length;
+                            return(
+                                <Text key={index} className={'text-neutral-400 text-base text-center font-semibold'}>
+                                    {genre?.name} {showDot?" •": null}
+                                </Text>
+                            )
+                        })
+                    }
                 </View>
                 <Text className={'text-neutral-400 mx-4 tracking-wide'}>
-                Justice League is a 2017 American superhero film based on the DC Comics superhero team of the same name. Produced by Warner Bros. Pictures, DC Films, RatPac-Dune Entertainment,[b] Atlas Entertainment, 
-                and Cruel and Unusual Films, and distributed by Warner Bros. Pictures, it is the fifth installment in the DC Extended Universe (DCEU). Directed by Zack Snyder who was replaced by Joss Whedon after Snyder 
-                left the project and written by Chris Terrio and Joss Whedon, the film features an ensemble cast including Ben Affleck, Henry Cavill, Gal Gadot, Ezra Miller, Jason Momoa, Ray Fisher, Amy Adams, Jeremy Irons, 
-                Diane Lane, Connie Nielsen, and J. K. Simmons. In the film, following the events of Batman v Superman: Dawn of Justice (2016) Batman and Wonder Woman recruit The Flash, Aquaman, and Cyborg after the death of 
-                Superman to save the world from the catastrophic threat of Steppenwolf and his army of Parademons.
+                    {
+                        movies?.overview
+                    }
                 </Text>
             </View>
 
-            <Cast navigation={navigation} cast={cast} />
+            {cast.length>0 &&<Cast navigation={navigation} cast={cast} />}
 
-            <MovieList title='Similar Movies' hideSeeAll={true} data={similarMovies} />
+            {similarMovies.length>0 &&<MovieList title='Similar Movies' hideSeeAll={true} data={similarMovies} />}
 
         </ScrollView>
     )
