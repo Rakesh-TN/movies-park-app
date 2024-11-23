@@ -29,6 +29,12 @@
         "projectId": "a391c989-32e4-43ba-bb9e-0a47782b31ac"
       }
     },
-    "owner": "rakesh-tn"
+    "owner": "rakesh-tn",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/a391c989-32e4-43ba-bb9e-0a47782b31ac"
+    }
   }
 }

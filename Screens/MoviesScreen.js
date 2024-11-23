@@ -14,8 +14,6 @@ var { width, height } = Dimensions.get('window')
 
 export default function MoviesScreen() {
 
-    let movieName = 'Justice League'
-
     const route = useRoute();
     const navigation = useNavigation();
     const [isFavorite, toggleFavorite] = useState(false);

@@ -1,5 +1,4 @@
 import axios from "axios";
-import parseErrorStack from "react-native/Libraries/Core/Devtools/parseErrorStack";
 
 //Endpoints
 const apiBaseUrl = 'https://api.themoviedb.org/3'
@@ -19,8 +18,8 @@ const personMoviesEndpoint = id  => `${apiBaseUrl}/person/${id}movie_credits/?ap
 const searchMoviesEndpoint = `${apiBaseUrl}/search/movie/?api_key=${apiKey}`
 
 export const image500 = path => path? `https://image.tmdb.org/t/p/w500${path}` : null;
-export const image342 = path => path? `https://image.tmdb.org/t/p/w500${path}` : null;
-export const image185 = path => path? `https://image.tmdb.org/t/p/w500${path}` : null;
+export const image342 = path => path? `https://image.tmdb.org/t/p/w342${path}` : null;
+export const image185 = path => path? `https://image.tmdb.org/t/p/w185${path}` : null;
 const apiCall = async (endpoint, param) => {
     const options ={ 
         method : 'GET',

@@ -74,7 +74,7 @@ export default function PersonScreen() {
                         <View className={'mx-3 p-4 mt-6 flex-row justify-between items-center  bg-neutral-700 rounded-full'}>
                             <View className={'border-r-2 border-r-neutral-400 px-2 items-center'}>
                                 <Text className={'text-white font-semibold'}>Gender</Text>
-                                <Text className={'text-neutral-300 text-sm'}>{person?.gender==1? 'Female':'Male'}</Text>
+                                <Text className={'text-neutral-300 text-sm'}>{person?.gender==1? 'Female':'Male' || 'API Not Work'}</Text>
                             </View>
                             <View className={'border-r-2 border-r-neutral-400 px-2 items-center '}>
                                 <Text className={'text-white font-semibold'}>Birthday</Text>
